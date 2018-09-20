@@ -1,18 +1,65 @@
 import pandas as pd
 import numpy as np
+import collections as cl
+import math
 def find_norm_MI(true_labels, pred_labels):
-
+    n = len(pred_labels)
+    true_labels_counter = cl.Counter(true_labels)
+    class_num = len(true_labels_counter)
+    entropy_class = -1 * sum([(c/n) * math.log2(c/n) for c in true_labels_counter.values()])
+    pred_labels_counter = cl.Counter(pred_labels)
+    cluster_num = len(pred_labels_counter)
+    entropy_cluster = -1 * sum([(c/n) * math.log2(c/n) for c in pred_labels_counter.values()])
+    clusters = dict(zip(pred_labels_counter.keys(),range(cluster_num)))
+    classes = dict(zip(true_labels_counter.keys(),range(class_num)))
+    matrix = np.zeros((cluster_num,class_num))
+    for i in range(n):
+        pred_label = pred_labels[i]
+        true_label = true_labels[i]
+        k = clusters[pred_label]
+        c = classes[true_label]
+        matrix[k][c] += 1
+    cluster_sum = matrix.sum(axis=1, dtype=float).reshape((cluster_num,1))
+    p_matrix = matrix/cluster_sum   # probability pij
+    c_matrix = cluster_sum/n      
+    entropy_matrix = -1 * p_matrix * np.log2(p_matrix)
+    entropy_matrix[np.isnan(entropy_matrix)] = 0
+    entropy_cluster_class = entropy_matrix.sum(axis=1).reshape((cluster_num,1))
+    entropy = (c_matrix * entropy_cluster_class).sum()
+    mi = entropy_class-entropy
+    nmi = 2*mi/(entropy_class+entropy_cluster)
     # Implement.
     # Return a number corresponding to the NMI of the two sets of labels.
 
-    return None
+    return nmi
 
 def find_norm_rand(true_labels, pred_labels):
 
     # Implement.
     # Return a number corresponding to the NRI of the two sets of labels.
-
-    return None
+    n = len(pred_labels)
+    cap_M = n*(n-1)/2
+    true_labels_counter = cl.Counter(true_labels)
+    class_num = len(true_labels_counter)
+    pred_labels_counter = cl.Counter(pred_labels)
+    cluster_num = len(pred_labels_counter)
+    clusters = dict(zip(pred_labels_counter.keys(),range(cluster_num)))
+    classes = dict(zip(true_labels_counter.keys(),range(class_num)))
+    matrix = np.zeros((cluster_num,class_num))
+    for i in range(n):
+        pred_label = pred_labels[i]
+        true_label = true_labels[i]
+        k = clusters[pred_label]
+        c = classes[true_label]
+        matrix[k][c] += 1
+    m = (matrix * (matrix-1) / 2.0).sum()
+    matrix_cluster = matrix.sum(axis=1)
+    m1 = (matrix_cluster * (matrix_cluster-1) /2.0).sum()
+    matrix_class = matrix.sum(axis=0)
+    m2 = (matrix_class * (matrix_class-1) /2.0).sum()
+    nr = (m-(m1*m2)/cap_M)/(m1/2+m2/2-(m1*m2)/cap_M)
+    
+    return nr
 
 def find_accuracy(true_labels, pred_labels):
 
