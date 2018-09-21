@@ -22,21 +22,75 @@ def k_means(X, n_clusters=3, init='random', algorithm='lloyds', n_init=1, max_it
     # generally the best of the results from executing the algorithm n_init times.
     # You will want to return the 'best' labels and centroids by this measure.
     m,n = X.shape
+    labels = np.zeros((m,1))
     
     if init == 'random':
-        index = random.sample(range(m), n_clusters)
-        centroids = X[index]
+        c_index = random.sample(range(m), n_clusters)
+        centroids = X[c_index]
         pass
     elif init == 'k-means++':
+        c_index = random.sample(range(m), n_clusters)
+        centroids = X[c_index]
+
         pass
     elif init == 'global':
+        c_index = random.sample(range(m), n_clusters)
+        centroids = X[c_index]
         pass
+    else:
+        c_index = random.sample(range(m), n_clusters)
+        centroids = X[c_index]
     if algorithm == 'lloyds':
         for _ in range(max_iter):
-            
+            for i in range(m):
+                d = ((centroids - m[i]) * (centroids - m[i])).sum(axis=1)
+                labels[i] = d.argmin()
+            for k in range(n_clusters):
+                r = X[np.where(labels==k)][:]
+                new_mean = r.mean(axis=0)
+                if new_mean.shape[0] == 1:
+                    centroids[k] = np.zeros((n,1))
+                else:
+                    centroids[k] = new_mean[:]
+    if algorithm == 'hartigans':
+        labels = np.array([random.randrange for _ in range(m)]).reshape((m,1))
+        for _ in range(max_iter):
+            for i in range(m):
+                idx = labels[i]
+                old_dis = 0
+                d_matrix = np.zeros((n_clusters,1))
+                for k in range(n_clusters): 
+                    r = X[np.where(labels==k)][:]
+                    d = ((r-centroids[k])**2).sum()
+                    d_matrix[k] = d
+                    old_dis += d
+                delta_matrix = np.zeros((n_clusters,1))
+                change_idx = d_matrix[idx] - ((X[i]-centroids[idx])**2).sum()
+                for k in range(n_clusters):
+                    delta_matrix[k] = delta_matrix[k] - change_idx + ((centroids[k]-X[i])**2).sum()
+                new_cen_idx = np.argmin(delta_matrix)
+                if new_cen_idx != idx:
+                    temp =  X[np.where(labels==k)][:]
+                    old_mean = (temp.sum(axis=0)  - X[i])/(len(temp)-1)
+                    centroids[idx] = old_mean[:]
+                    temp2 = X[np.where(labels==new_cen_idx)][:]
+                    new_mean = (temp2.sum(axis=0)+X[i])/(len(temp2)+1)
+                    centroids[new_cen_idx] = new_mean[:]
+
+                        
+                
+                    
+
+
+
+    
+
+
+
+
         
 
-    return None, None, None
+    return labels, centroids, None
 
 
 # The code below is completed for you.
