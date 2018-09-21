@@ -1,8 +1,9 @@
 import pandas as pd
-import numpy as np
-import collections as cl
-import math
+
 def find_norm_MI(true_labels, pred_labels):
+
+    # Implement.
+    # Return a number corresponding to the NMI of the two sets of labels.
     n = len(pred_labels)
     true_labels_counter = cl.Counter(true_labels)
     class_num = len(true_labels_counter)
@@ -28,9 +29,6 @@ def find_norm_MI(true_labels, pred_labels):
     entropy = (c_matrix * entropy_cluster_class).sum()
     mi = entropy_class-entropy
     nmi = 2*mi/(entropy_class+entropy_cluster)
-    # Implement.
-    # Return a number corresponding to the NMI of the two sets of labels.
-
     return nmi
 
 def find_norm_rand(true_labels, pred_labels):
@@ -58,7 +56,6 @@ def find_norm_rand(true_labels, pred_labels):
     matrix_class = matrix.sum(axis=0)
     m2 = (matrix_class * (matrix_class-1) /2.0).sum()
     nr = (m-(m1*m2)/cap_M)/(m1/2+m2/2-(m1*m2)/cap_M)
-    
     return nr
 
 def find_accuracy(true_labels, pred_labels):
@@ -93,6 +90,7 @@ class ExternalValidator:
     """
 
     def __init__(self, df = None, true_labels = None, pred_labels = None):
+        df = df.drop('CENTROID', axis=0)  # IMPORTANT -- Drop centroid rows before processing
         self.DF = df
         self.true_labels = true_labels
         self.pred_labels = pred_labels

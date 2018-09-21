@@ -2,18 +2,24 @@ import pandas as pd
 import time
 from ClusterUtils.ClusterPlotter import _plot_cvnn_
 from ClusterUtils.ClusterPlotter import _plot_silhouette_
-
-
+import numpy as np
 def tabulate_silhouette(datasets, cluster_nums):
 
     # Implement.
 
     # Inputs:
-    # datasets: Your provided list of clustering results.
+    # datasets: Your provided list of clustering results.(By default, the datasets generated are pandas DataFrames, 
+    # and the final column is named 'CLUSTER')
     # cluster_nums: A list of integers corresponding to the number of clusters
     # in each of the datasets, e.g.,
     # datasets = [np.darray, np.darray, np.darray]
     # cluster_nums = [2, 3, 4]
+    for df in datasets:
+        l = list()
+        data = df.groupby('CLUSTER')
+        for i in data:
+            l.append(np.array(i))
+
 
     # Return a pandas DataFrame corresponding to the results.
 
