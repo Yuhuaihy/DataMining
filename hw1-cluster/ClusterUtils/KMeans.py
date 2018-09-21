@@ -4,7 +4,7 @@ import random
 import time
 from ClusterUtils.SuperCluster import SuperCluster
 from ClusterUtils.ClusterPlotter import _plot_kmeans_
-
+import random
 
 def k_means(X, n_clusters=3, init='random', algorithm='lloyds', n_init=1, max_iter=300, verbose=False):
 
@@ -21,7 +21,20 @@ def k_means(X, n_clusters=3, init='random', algorithm='lloyds', n_init=1, max_it
     # 3. inertia: A number corresponding to some measure of fitness,
     # generally the best of the results from executing the algorithm n_init times.
     # You will want to return the 'best' labels and centroids by this measure.
-
+    m,n = X.shape
+    
+    if init == 'random':
+        index = random.sample(range(m), n_clusters)
+        centroids = X[index]
+        pass
+    elif init == 'k-means++':
+        pass
+    elif init == 'global':
+        pass
+    if algorithm == 'lloyds':
+        for _ in range(max_iter):
+            
+        
 
     return None, None, None
 
