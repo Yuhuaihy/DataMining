@@ -14,11 +14,27 @@ def tabulate_silhouette(datasets, cluster_nums):
     # in each of the datasets, e.g.,
     # datasets = [np.darray, np.darray, np.darray]
     # cluster_nums = [2, 3, 4]
-    for df in datasets:
-        l = list()
-        data = df.groupby('CLUSTER')
-        for i in data:
-            l.append(np.array(i))
+    for dataset in datasets:
+        #data = dataset.values[:,:-1]
+        #label = dataset.values[:,-1]
+        data = dataset[:,:-1]
+        label = dataset[:,-1]
+        n = len(data)
+        matrix = np.zeros((n,n))
+        for i in range(n):
+            matrix[i] = ((data - data[i]) * (data-data[i])).sum(axis=1)
+        clusters = {}
+        for i in range(n):
+            l = label[i]
+            if l not in clusters:
+                clusters[l] = []
+            clusters[l].append(i)
+        for c in clusters:
+            temp = matrix[c]
+            temp1 = temp[:,c]
+            size = len(temp1)
+            sum_di = temp.sum(axis=1)
+            mean_di = sum_di/(size-1)
 
 
     # Return a pandas DataFrame corresponding to the results.
