@@ -54,7 +54,7 @@ def k_means(X, n_clusters=3, init='random', algorithm='lloyds', n_init=1, max_it
                 else:
                     centroids[k] = new_mean[:]
     if algorithm == 'hartigans':
-        labels = np.array([random.randrange for _ in range(m)]).reshape((m,1))
+        labels = np.array([random.randrange(0,n_clusters) for _ in range(m)]).reshape((m,1))
         for _ in range(max_iter):
             for i in range(m):
                 idx = labels[i]

@@ -4,9 +4,47 @@ import random
 import time
 from ClusterUtils.SuperCluster import SuperCluster
 from ClusterUtils.ClusterPlotter import _plot_generic_
+def GaussianKernel(X):
+    X2 = X[:]
+    n = len(X)
+    sigma = 2
+    kernel_matrix = np.zeros((n,n))
+    for i in range(n):
+        exp = (-1/(2*(sigma**2)) * (X-X[i])**2).sum(axis=1)
+        kernel_matrix[i] = np.power(np.e,exp.reshape((n,1)))
+    return kernel_matrix
+
+def kernel_km(X,n_clusters=3, verbose=False):
+    kernel_matrix = GaussianKernel(X)
+    m = len(X)
+    centroids = random.sample(range(n_clusters),n_clusters)
+    labels = [0] * n_clusters
+    for x in centroids:
+        labels[x] = x
+    max_iter = 300
+
+    ### distance = k(xi,xi)^2 +2* sum(k(xi,xj))/c + sum(k(xj,xl))/c^2
+    ### addend1+addend2+addend3
+    for _ in range(max_iter):
+        distance = np.zeros((n_clusters,1))
+        for i in range(m):
+            for k in range(n_clusters):
+                points = np.where(labels==k)[0]
+                num = len(points)
+                addend1 = kernel_matrix[i][i] ** 2
+                r1 = kernel_matrix[i][:]
+                r2 =r1[points]
+                addend2 = 2 * r2.sum() / num
+                r3 = kernel_matrix[points]
+                r3 = r3[:,points]
+                addend3 = r3.sum() / (num**2)
+                distance[k] = addend1 + addend2 + addend3
+            labels[i] = np.argmin(distance)
+
+                
 
 
-def kernel_km(X):
+
 
     # Implement.
 
@@ -15,7 +53,7 @@ def kernel_km(X):
     # Return an array or list-type object corresponding to the predicted
     # cluster numbers, e.g., [0, 0, 0, 1, 1, 1, 2, 2, 2]
 
-    return None
+    return labels
 
 
 # Add parameters below as needed, depending on your implementation.
