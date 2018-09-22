@@ -5,7 +5,6 @@ import time
 from ClusterUtils.SuperCluster import SuperCluster
 from ClusterUtils.ClusterPlotter import _plot_generic_
 def GaussianKernel(X):
-    X2 = X[:]
     n = len(X)
     sigma = 2
     kernel_matrix = np.zeros((n,n))

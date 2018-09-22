@@ -12,6 +12,16 @@ def dbscan(X, eps=1, min_points=10, verbose=False):
 
     # Return a array or list-type object corresponding to the predicted cluster
     # numbers, e.g., [0, 0, 0, 1, 1, 1, 2, 2, 2]
+    m = len(X)
+    distance_matrix = np.zeros((m,m))
+    for i in range(m):
+        distance_matrix[i] = ((X-X[i])**2).sum(axis=1).reshape((m,1))[:]
+    cores = np.zeros((m,1))
+    for i in range(m):
+        r = distance_matrix[i]
+        num = len(np.where(r<eps)[0])
+        cores[i] = num >= min_points
+    
 
     return None
 
