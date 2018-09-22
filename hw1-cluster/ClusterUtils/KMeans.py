@@ -5,6 +5,7 @@ import time
 from ClusterUtils.SuperCluster import SuperCluster
 from ClusterUtils.ClusterPlotter import _plot_kmeans_
 import random
+from ExternalValidator import find_accuracy, find_norm_MI, find_norm_rand
 
 def k_means(X, n_clusters=3, init='random', algorithm='lloyds', n_init=1, max_iter=300, verbose=False):
 
