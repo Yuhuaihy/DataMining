@@ -3,6 +3,38 @@ import numpy as np
 import time
 from ClusterUtils.SuperCluster import SuperCluster
 from ClusterUtils.ClusterPlotter import _plot_generic_
+def expandCluster(c, neighbors, labels, eps, min_points, distance_matrix):
+    pointer = 0
+    while(True):
+        l_prev = len(neighbors)
+        for pp in neighbors[pointer:]:
+            pointer += 1
+            if labels[pp] == -1:
+                labels[pp] = c
+            elif labels[pp] >0:
+                continue
+            else:
+                labels[pp] = c
+                r = distance_matrix[pp]
+                n = list(np.where(r<eps)[0])[:]
+                if len(n) > min_points:
+                    neighbors += n
+        if len(neighbors) == l_prev:
+            break
+#     expandCluster(P, NeighborPts, C, eps, MinPts) {
+#    add Pto cluster C
+#    foreach point P' in NeighborPts {
+#       ifP' is not visited {
+#         mark P' as visited
+#         NeighborPts' = regionQuery(P', eps)
+#         if sizeof(NeighborPts') >= MinPts
+#            NeighborPts = NeighborPts joined with NeighborPts'
+#       }
+#       ifP' is not yet member of any cluster
+#         add P' to cluster C
+#    }
+
+
 
 def dbscan(X, eps=1, min_points=10, verbose=False):
 
@@ -16,14 +48,25 @@ def dbscan(X, eps=1, min_points=10, verbose=False):
     distance_matrix = np.zeros((m,m))
     for i in range(m):
         distance_matrix[i] = ((X-X[i])**2).sum(axis=1).reshape((m,1))[:]
-    cores = np.zeros((m,1))
+    labels = np.zeros((m,1))
+    ##label = 0 unvisited -1 noise
+    c = 1
     for i in range(m):
+        if labels[i] != 0:
+            continue
         r = distance_matrix[i]
-        num = len(np.where(r<eps)[0])
-        cores[i] = num >= min_points
-    
-
-    return None
+        neighbors = list(np.where(r<eps)[0])[:]
+        num = len(neighbors)
+        if num<min_points:
+            labels[i] = -1
+            continue
+        c += 1
+        labels[i] = c
+        for p in neighbors:
+            if p==i:
+                continue
+            expandCluster(c,neighbors,labels,eps,min_points,distance_matrix)
+    return labels
 
 
 # The code below is completed for you.
