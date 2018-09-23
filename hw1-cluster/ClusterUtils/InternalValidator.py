@@ -14,9 +14,11 @@ def tabulate_silhouette(datasets, cluster_nums):
     # in each of the datasets, e.g.,
     # datasets = [np.darray, np.darray, np.darray]
     # cluster_nums = [2, 3, 4]
-    for dataset in datasets:
+    silhouette = []
+    for idx in range(len(datasets)):
         #data = dataset.values[:,:-1]
         #label = dataset.values[:,-1]
+        dataset = datasets[i]
         data = dataset[:,:-1]
         label = dataset[:,-1]
         n = len(data)
@@ -29,17 +31,37 @@ def tabulate_silhouette(datasets, cluster_nums):
             if l not in clusters:
                 clusters[l] = []
             clusters[l].append(i)
-        for c in clusters:
-            temp = matrix[c]
-            temp1 = temp[:,c]
-            size = len(temp1)
-            sum_di = temp.sum(axis=1)
-            mean_di = sum_di/(size-1)
+        s_matrix = np.zeros((n,1))
+        for i in range(n):
+            l = label[i]
+            a = 0
+            b = []
+            for k in clusters:
+                points = clusters[k]
+                r = matrix[i][points]
+                size = len(r)
+                if k==l:
+                    a = r.sum()/(size-1)
+                else:
+                    b.append(r.sum()/size)
+            b = min(b)
+            s = (b-a)/max(a,b)
+            s_matrix[i] = s
+        s_total = 0
+        for k in clusters:
+            points = clusters[k]
+            s = s_matrix[points]
+            s_mean_cluster = np.mean(s)
+            s_total += s_mean_cluster
+        s = s_total/cluster_nums[idx]
+        silhouette.append(s)
+    dfdata = {'CLUSTERS':cluster_nums,'SILHOUETTE_IDX':silhouette}
+    df = pd.DataFrame(dfdata)
 
 
     # Return a pandas DataFrame corresponding to the results.
 
-    return None
+    return df
 
 def tabulate_cvnn(datasets, cluster_nums, k_vals):
 

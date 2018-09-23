@@ -7,6 +7,9 @@ from ClusterUtils.ClusterPlotter import _plot_generic_
 
 
 def spectral(X, n_clusters=3, verbose=False):
+    m = len(X)
+    labels = np.zeros((m,1))
+
 
     # Implement.
 
@@ -15,7 +18,7 @@ def spectral(X, n_clusters=3, verbose=False):
     # Return an array or list-type object corresponding to the predicted
     # cluster numbers, e.g., [0, 0, 0, 1, 1, 1, 2, 2, 2]
 
-    return None
+    return labels
 
 
 # Add parameters below as needed, depending on your implementation.
