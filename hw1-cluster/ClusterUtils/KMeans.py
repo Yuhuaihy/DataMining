@@ -57,9 +57,22 @@ def k_means(X, n_clusters=3, init='random', algorithm='lloyds', n_init=1, max_it
         centroids = X[c_index]
             
     elif init == 'global':
-        c_index = random.sample(range(m), n_clusters)
+        c_index = []
+        for k in range(n_clusters):
+            d = np.zeros((m,1))
+            for j in range(m):
+                temp_c = c_index[:]
+                temp_c.append(j)
+                cents = X[temp_c][:]
+                sum_d = 0
+                for q in range(m):
+                    sum_d += np.min(((cents-X[q])**2).sum(axis=1))
+                d[j] = sum_d
+            idx = np.argmin(d)
+            c_index.append(idx)
+                
+
         centroids = X[c_index]
-        pass
     else:
         c_index = random.sample(range(m), n_clusters)
         centroids = X[c_index]
