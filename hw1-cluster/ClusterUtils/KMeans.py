@@ -30,10 +30,32 @@ def k_means(X, n_clusters=3, init='random', algorithm='lloyds', n_init=1, max_it
         centroids = X[c_index]
         pass
     elif init == 'k-means++':
-        c_index = random.sample(range(m), n_clusters)
+        c_index = []
+        first = random.randint(0,m-1)
+        c_index.append(first)
+        for k in range(1,n_clusters):
+            cents = X[c_index]
+            dis_matrix = np.zeros((m,1))
+            for j in range(m):
+                dis = ((cents - X[j])**2).sum(axis=1)
+                d = np.min(dis)
+                d_squre = d**2
+                dis_matrix[j] = d_squre
+            total = dis_matrix.sum()
+            p_matrix = dis_matrix/total
+            p_sum = np.zeros((m,1))
+            p_sum[0] = p_matrix[0]
+            rand_num = random.random()
+            if rand_num<= p_sum[0]:
+                c_index.append(0)
+            else:
+                for j in range(1,m):
+                    p_sum[j] = p_matrix[j] + p_sum[j-1]
+                    if p_sum[j]>=rand_num and rand_num >= p_sum[j-1]:
+                        c_index.append(j)
+                        break
         centroids = X[c_index]
-
-        pass
+            
     elif init == 'global':
         c_index = random.sample(range(m), n_clusters)
         centroids = X[c_index]

@@ -75,6 +75,9 @@ def tabulate_cvnn(datasets, cluster_nums, k_vals):
     # cluster_nums = [2, 3, 4]
     
     # Return a pandas DataFrame corresponding to the results.
+    for i in range(len(cluster_nums)):
+        dataset = datasets[i]
+        
 
     return None
 
