@@ -6,7 +6,7 @@ from ClusterUtils.SuperCluster import SuperCluster
 from ClusterUtils.ClusterPlotter import _plot_kmeans_
 import random
 from ClusterUtils.ExternalValidator import find_accuracy, find_norm_MI, find_norm_rand
-
+from IPython import embed
 def k_means(X, n_clusters=3, init='random', algorithm='lloyds', n_init=1, max_iter=300, verbose=False):
 
     # Implement.
@@ -76,15 +76,17 @@ def k_means(X, n_clusters=3, init='random', algorithm='lloyds', n_init=1, max_it
     else:
         c_index = random.sample(range(m), n_clusters)
         centroids = X[c_index]
+    embed()
     if algorithm == 'lloyds':
         for _ in range(max_iter):
             for i in range(m):
-                d = ((centroids - m[i]) * (centroids - m[i])).sum(axis=1)
+                d = ((centroids - X[i]) * (centroids - X[i])).sum(axis=1)
                 labels[i] = d.argmin()
             for k in range(n_clusters):
-                r = X[np.where(labels==k)][:]
+                r = X[np.where(labels==k)[0]][:]
                 new_mean = r.mean(axis=0)
-                if new_mean.shape[0] == 1:
+                
+                if new_mean.shape[0] == 0:
                     centroids[k] = np.zeros((n,1))
                 else:
                     centroids[k] = new_mean[:]
@@ -124,7 +126,7 @@ def k_means(X, n_clusters=3, init='random', algorithm='lloyds', n_init=1, max_it
 
 
 
-        
+    embed()   
 
     return labels, centroids, None
 

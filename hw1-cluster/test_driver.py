@@ -7,7 +7,13 @@ from ClusterUtils import ExternalValidator
 ## 1, Lloyd's kmeans three_glob.csv
 
 
-km = KMeans(init='random', n_clusters=3, csv_path='three_globs.csv')
+km = KMeans(init='random', n_clusters=3, csv_path='Datasets/three_globs.csv')
+km.fit_from_csv()
+km.show_plot()
+km.save_plot()
+km.save_csv()
+
+km = KMeans(init='k-means++', n_clusters=3, csv_path='Datasets/three_globs.csv')
 km.fit_from_csv()
 km.show_plot()
 km.save_plot()
