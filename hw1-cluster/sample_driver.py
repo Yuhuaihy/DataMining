@@ -7,7 +7,7 @@ from ClusterUtils import ExternalValidator
 db = DBScan(eps=0.3, min_points=10, csv_path='rockets.csv')
 db.fit_from_csv()
 db.show_plot()
-db.save_plot()
+db.save_plot('DBScan plot')
 db.save_csv()
 
 km = KMeans(init='random', n_clusters=3, csv_path='three_globs.csv')
