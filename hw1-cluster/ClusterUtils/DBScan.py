@@ -3,6 +3,7 @@ import numpy as np
 import time
 from ClusterUtils.SuperCluster import SuperCluster
 from ClusterUtils.ClusterPlotter import _plot_generic_
+from IPython import embed
 def expandCluster(c, neighbors, labels, eps, min_points, distance_matrix):
     pointer = 0
     while(True):
@@ -18,7 +19,8 @@ def expandCluster(c, neighbors, labels, eps, min_points, distance_matrix):
                 r = distance_matrix[pp]
                 n = list(np.where(r<eps)[0])[:]
                 if len(n) > min_points:
-                    neighbors += n
+                    add_neighbors = set(n) - set(n).intersection(set(neighbors))
+                    neighbors += list(add_neighbors)
         if len(neighbors) == l_prev:
             break
 #     expandCluster(P, NeighborPts, C, eps, MinPts) {
@@ -47,7 +49,7 @@ def dbscan(X, eps=1, min_points=10, verbose=False):
     m = len(X)
     distance_matrix = np.zeros((m,m))
     for i in range(m):
-        distance_matrix[i] = ((X-X[i])**2).sum(axis=1).reshape((m,1))[:]
+        distance_matrix[i] = ((X-X[i])**2).sum(axis=1)
     labels = np.zeros((m,1))
     ##label = 0 unvisited -1 noise
     c = 1

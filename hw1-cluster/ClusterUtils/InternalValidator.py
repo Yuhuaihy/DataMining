@@ -5,7 +5,24 @@ from ClusterUtils.ClusterPlotter import _plot_silhouette_
 import numpy as np
 import collections as cl
 from IPython import embed
+def build_dismatrix(dataset,cluster_n):
+    dataset = dataset.values
+    data = dataset[:-1*cluster_n,:-1]
+    label = dataset[:-1*cluster_n,-1]
+    n = len(data)
+    matrix = np.zeros((n,n))
+    for i in range(n):
+        matrix[i] = ((data - data[i]) * (data-data[i])).sum(axis=1)
+    clusters = {}
+    for i in range(n):
+        l = label[i]
+        if l not in clusters:
+            clusters[l] = []
+        clusters[l].append(i)
+    return matrix, clusters, n, label
+
 def tabulate_silhouette(datasets, cluster_nums):
+    
 
     # Implement.
 
@@ -18,19 +35,7 @@ def tabulate_silhouette(datasets, cluster_nums):
     # cluster_nums = [2, 3, 4]
     silhouette = []
     for idx in range(len(datasets)):
-        dataset = datasets[idx].values
-        data = dataset[:,:-1]
-        label = dataset[:,-1]
-        n = len(data)
-        matrix = np.zeros((n,n))
-        for i in range(n):
-            matrix[i] = ((data - data[i]) * (data-data[i])).sum(axis=1)
-        clusters = {}
-        for i in range(n):
-            l = label[i]
-            if l not in clusters:
-                clusters[l] = []
-            clusters[l].append(i)
+        dis_matrix, clusters, n, label = build_dismatrix(datasets[idx], cluster_nums[idx])
         s_matrix = np.zeros((n,1))
         for i in range(n):
             l = label[i]
@@ -38,12 +43,13 @@ def tabulate_silhouette(datasets, cluster_nums):
             b = []
             for k in clusters:
                 points = clusters[k]
-                r = matrix[i][points]
+                r = dis_matrix[i][points]
                 size = len(r)
                 if k==l:
-                    a = r.sum()/(size-1)
+                    a = 0 if size== 1 else r.sum()/(size-1)
                 else:
                     b.append(r.sum()/size)
+                
             b = min(b)
             s = (b-a)/max(a,b)
             s_matrix[i] = s
@@ -53,10 +59,11 @@ def tabulate_silhouette(datasets, cluster_nums):
             s = s_matrix[points]
             s_mean_cluster = np.mean(s)
             s_total += s_mean_cluster
-        s = s_total/cluster_nums[idx]
-        silhouette.append(s)
+        si = s_total/cluster_nums[idx]
+        silhouette.append(si)
     dfdata = {'CLUSTERS':cluster_nums,'SILHOUETTE_IDX':silhouette}
     df = pd.DataFrame(dfdata)
+    embed()
 
 
     # Return a pandas DataFrame corresponding to the results.
@@ -79,21 +86,7 @@ def tabulate_cvnn(datasets, cluster_nums, k_vals):
     data_matrix = pd.DataFrame(columns=('CLUSTER','K','CVNN'))
     # Return a pandas DataFrame corresponding to the results.
     for idx in range(len(cluster_nums)):
-        dataset = datasets[idx].values
-        cluster_n = cluster_nums[idx]
-        data = dataset[:-1*cluster_n,:-1]
-        label = dataset[:-1*cluster_n,-1]
-        n = len(data)
-        dis_matrix = np.zeros((n,n))
-        for i in range(n):
-            dis_matrix[i] = ((data - data[i]) * (data-data[i])).sum(axis=1)
-        clusters = {}
-        embed()w
-        for i in range(n):
-            l = label[i]
-            if l not in clusters:
-                clusters[l] = []
-            clusters[l].append(i)
+        dis_matrix, clusters, n, _ = build_dismatrix(datasets[idx], cluster_nums[idx])
         sep_list = np.zeros((cluster_nums[idx],ks))
         jth = 0
         com = 0 

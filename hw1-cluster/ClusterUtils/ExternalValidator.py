@@ -71,15 +71,14 @@ def find_accuracy(true_labels, pred_labels):
 
     # Implement.
     # Return a number corresponding to the accuracy of the two sets of labels.
-    total = len(true_labels)
     matrix = build_matrix(true_labels, pred_labels)
-    n_cluster, n_class = matrix.shape
-    correct = 0
-    if n_cluster < n_class:
-        matrix = np.transpose(matrix)
-    for row in matrix:
-        idx = np.argmax(row)
-        
+    cluster_num, class_num = matrix.shape
+    cluster_sum = matrix.sum(axis=1, dtype=float).reshape((cluster_num,1))
+    class_sum = matrix.sum(axis=0, dtype=float).reshape((1,class_num))
+    p_matrix = matrix/cluster_sum   # probability pij
+    recall_matrix = matrix/ class_sum
+    f_matrix = (2 * p_matrix * recall_matrix) /(p_matrix + recall_matrix)
+    
 
 
     return 1
