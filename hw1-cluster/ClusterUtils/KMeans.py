@@ -76,7 +76,6 @@ def k_means(X, n_clusters=3, init='random', algorithm='lloyds', n_init=1, max_it
     else:
         c_index = random.sample(range(m), n_clusters)
         centroids = X[c_index]
-    embed()
     if algorithm == 'lloyds':
         for _ in range(max_iter):
             for i in range(m):
@@ -126,7 +125,6 @@ def k_means(X, n_clusters=3, init='random', algorithm='lloyds', n_init=1, max_it
 
 
 
-    embed()   
 
     return labels, centroids, None
 

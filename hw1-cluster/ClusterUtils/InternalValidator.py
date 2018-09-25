@@ -4,6 +4,7 @@ from ClusterUtils.ClusterPlotter import _plot_cvnn_
 from ClusterUtils.ClusterPlotter import _plot_silhouette_
 import numpy as np
 import collections as cl
+from IPython import embed
 def tabulate_silhouette(datasets, cluster_nums):
 
     # Implement.
@@ -17,9 +18,7 @@ def tabulate_silhouette(datasets, cluster_nums):
     # cluster_nums = [2, 3, 4]
     silhouette = []
     for idx in range(len(datasets)):
-        #data = dataset.values[:,:-1]
-        #label = dataset.values[:,-1]
-        dataset = datasets[idx]
+        dataset = datasets[idx].values
         data = dataset[:,:-1]
         label = dataset[:,-1]
         n = len(data)
@@ -73,41 +72,48 @@ def tabulate_cvnn(datasets, cluster_nums, k_vals):
     # in each of the datasets, e.g.,
     # datasets = [np.darray, np.darray, np.darray]
     # cluster_nums = [2, 3, 4]
-    k_vals.sort()
+    
     ks = len(k_vals)
-    data_matrix = pd.DataFrame(columns=('CLUSTER','k','CVNN'))
+    sep_total = np.zeros((len(cluster_nums),ks))
+    com_total = []
+    data_matrix = pd.DataFrame(columns=('CLUSTER','K','CVNN'))
     # Return a pandas DataFrame corresponding to the results.
     for idx in range(len(cluster_nums)):
-        dataset = datasets[idx]
-        data = dataset[:,:-1]
-        label = dataset[:,-1]
+        dataset = datasets[idx].values
+        cluster_n = cluster_nums[idx]
+        data = dataset[:-1*cluster_n,:-1]
+        label = dataset[:-1*cluster_n,-1]
         n = len(data)
         dis_matrix = np.zeros((n,n))
         for i in range(n):
             dis_matrix[i] = ((data - data[i]) * (data-data[i])).sum(axis=1)
         clusters = {}
+        embed()w
         for i in range(n):
             l = label[i]
             if l not in clusters:
                 clusters[l] = []
             clusters[l].append(i)
-        sep_list = np.zeros((cluster_nums[idx],3))
+        sep_list = np.zeros((cluster_nums[idx],ks))
         jth = 0
         com = 0 
         for j in clusters:
-            points = clusters[j]
+            points = clusters[j]        
             r = (dis_matrix[points][:,points]).sum()
             nj = len(points)
-            com += (2.0/(nj*(nj-1.0))) * r
-
             sum_sep = np.zeros((1,ks))
+            if nj == 1:
+                sep_list[jth] = sum_sep.copy()
+                jth += 1
+                continue
+            com += (2.0/(nj*(nj-1.0))) * r
             for i in points:
                 weight_kth = []
                 tuple_dis = [(ith,dis_matrix[i][ith]) for ith in range(n)]
                 tuple_dis = sorted(tuple_dis, key=lambda x:x[1])
                 for k in k_vals:
                     q = 0
-                    for p in tuple_dis[1:]:
+                    for p in tuple_dis[1:k+1]:
                         if p[0] not in points:
                             q += 1
                     weight_kth.append(float(q)/float(k))
@@ -116,13 +122,17 @@ def tabulate_cvnn(datasets, cluster_nums, k_vals):
             sep_list[jth] = sep.copy()
             jth += 1
         sep_ks = sep_list.max(axis=0)
-        for k_idx in range(ks):
-            sep_k = sep_ks[k_idx]
-            ##
-            data_matrix.append(pd.DataFrame({'CLUSTER': [cluster_nums[idx]], 'k': [k_vals[k_idx]],'CVNN':[sep_k+com]}))
-        
-                
-
+        sep_total[idx] = sep_ks.copy()
+        com_total.append(com)
+    max_com = max(com_total)
+    max_sep = sep_total.max(axis=0)
+    sep_norm = sep_total/ max_sep
+    com_norm = com_total/ max_com
+    cvnn_total = sep_norm + np.array([com_norm]).reshape((len(cluster_nums), 1))
+    for i in range(len(cluster_nums)):
+        for j in range(ks):
+            data_matrix = data_matrix.append(pd.DataFrame({'CLUSTER': [cluster_nums[i]], 'K': [k_vals[j]],'CVNN':[cvnn_total[i][j]]}))
+    
     return data_matrix
 
 

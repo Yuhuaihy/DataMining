@@ -3,19 +3,16 @@ import math
 import collections as cl
 import numpy as np
 import time
-def find_norm_MI(true_labels, pred_labels):
-
-    # Implement.
-    # Return a number corresponding to the NMI of the two sets of labels.
+from IPython import embed
+import random
+def build_matrix(true_labels, pred_labels):
     n = len(pred_labels)
-    true_labels_counter = cl.Counter(true_labels)
-    class_num = len(true_labels_counter)
-    entropy_class = -1 * sum([(c/n) * math.log2(c/n) for c in true_labels_counter.values()])
-    pred_labels_counter = cl.Counter(pred_labels)
-    cluster_num = len(pred_labels_counter)
-    entropy_cluster = -1 * sum([(c/n) * math.log2(c/n) for c in pred_labels_counter.values()])
-    clusters = dict(zip(pred_labels_counter.keys(),range(cluster_num)))
-    classes = dict(zip(true_labels_counter.keys(),range(class_num)))
+    pred = set(pred_labels)
+    cluster_num = len(pred)
+    tru = set(true_labels)
+    class_num = len(tru)
+    clusters = dict(zip(pred,range(cluster_num)))
+    classes = dict(zip(tru,range(class_num)))
     matrix = np.zeros((cluster_num,class_num))
     for i in range(n):
         pred_label = pred_labels[i]
@@ -23,13 +20,34 @@ def find_norm_MI(true_labels, pred_labels):
         k = clusters[pred_label]
         c = classes[true_label]
         matrix[k][c] += 1
+    return matrix
+
+def find_class_cluster_entropy(matrix, label):
+    n = matrix.sum()
+    if label == 'class':
+        sum_matrix = matrix.sum(axis=0)
+    else:
+        sum_matrix = matrix.sum(axis=1)
+    p_matrix = sum_matrix/n
+    entropy_matrix = -1 * p_matrix * np.log2(p_matrix)
+    return entropy_matrix.sum()
+
+def find_entropy(matrix):
+    cluster_num, class_num = matrix.shape
     cluster_sum = matrix.sum(axis=1, dtype=float).reshape((cluster_num,1))
     p_matrix = matrix/cluster_sum   # probability pij
-    c_matrix = cluster_sum/n      
+    c_matrix = cluster_sum/matrix.sum()    
     entropy_matrix = -1 * p_matrix * np.log2(p_matrix)
     entropy_matrix[np.isnan(entropy_matrix)] = 0
     entropy_cluster_class = entropy_matrix.sum(axis=1).reshape((cluster_num,1))
     entropy = (c_matrix * entropy_cluster_class).sum()
+    return entropy
+
+def find_norm_MI(true_labels, pred_labels):
+    matrix = build_matrix(true_labels, pred_labels) 
+    entropy = find_entropy(matrix)
+    entropy_class = find_class_cluster_entropy(matrix, 'class')
+    entropy_cluster = find_class_cluster_entropy(matrix, 'cluster')
     mi = entropy_class-entropy
     nmi = 2*mi/(entropy_class+entropy_cluster)
     return nmi
@@ -40,19 +58,7 @@ def find_norm_rand(true_labels, pred_labels):
     # Return a number corresponding to the NRI of the two sets of labels.
     n = len(pred_labels)
     cap_M = n*(n-1)/2
-    true_labels_counter = cl.Counter(true_labels)
-    class_num = len(true_labels_counter)
-    pred_labels_counter = cl.Counter(pred_labels)
-    cluster_num = len(pred_labels_counter)
-    clusters = dict(zip(pred_labels_counter.keys(),range(cluster_num)))
-    classes = dict(zip(true_labels_counter.keys(),range(class_num)))
-    matrix = np.zeros((cluster_num,class_num))
-    for i in range(n):
-        pred_label = pred_labels[i]
-        true_label = true_labels[i]
-        k = clusters[pred_label]
-        c = classes[true_label]
-        matrix[k][c] += 1
+    matrix = build_matrix(true_labels, pred_labels)
     m = (matrix * (matrix-1) / 2.0).sum()
     matrix_cluster = matrix.sum(axis=1)
     m1 = (matrix_cluster * (matrix_cluster-1) /2.0).sum()
@@ -66,12 +72,17 @@ def find_accuracy(true_labels, pred_labels):
     # Implement.
     # Return a number corresponding to the accuracy of the two sets of labels.
     total = len(true_labels)
-    a = np.array(true_labels)
-    b = np.array(pred_labels)
-    sub = a-b
-    zeros = sub[sub==0].size
+    matrix = build_matrix(true_labels, pred_labels)
+    n_cluster, n_class = matrix.shape
+    correct = 0
+    if n_cluster < n_class:
+        matrix = np.transpose(matrix)
+    for row in matrix:
+        idx = np.argmax(row)
+        
 
-    return zeros/total
+
+    return 1
 
 
 # The code below is completed for you.
