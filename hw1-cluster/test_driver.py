@@ -4,6 +4,7 @@ from ClusterUtils import KernelKM
 from ClusterUtils import InternalValidator
 from ClusterUtils import ExternalValidator
 from IPython import embed
+from ClusterUtils import Spectral
 ###part II
 ## 1, Lloyd's kmeans three_glob.csv
 
@@ -77,8 +78,14 @@ from IPython import embed
 # db.save_plot('DBScan plot')
 # db.save_csv()
 
-kernel = KernelKM(n_clusters=2, csv_path='Datasets/eye_dense.csv')
-kernel.fit_from_csv()
-kernel.show_plot()
-kernel.save_csv('kernel_plot')
-kernel.save_csv()
+# kernel = KernelKM(n_clusters=2, csv_path='Datasets/eye_dense.csv')
+# kernel.fit_from_csv()
+# kernel.show_plot()
+# kernel.save_plot('kernel_plot')
+# kernel.save_csv()
+
+spectral = Spectral(n_clusters=2,csv_path='Datasets/eye_dense.csv' )
+spectral.fit_from_csv()
+spectral.show_plot()
+# spectral.save_plot('spectral')
+# spectral.save_csv()

@@ -7,24 +7,25 @@ from scipy.cluster.vq import kmeans2
 import time
 from ClusterUtils.SuperCluster import SuperCluster
 from ClusterUtils.ClusterPlotter import _plot_generic_
+from IPython import embed
 def build_simi_matrix(X):
     m = len(X)
     matrix = np.zeros((m,m))
     for i in range(m):
-        matrix[i] = ((X-X[i]) ** 2).reshape((1,m))
+        matrix[i] = ((X-X[i]) ** 2).sum(axis=1).reshape((1,m))
     return 1-matrix
 
 def spectral(X, n_clusters=3, verbose=False):
     m = len(X)
     labels = np.zeros((m,1))
     simi_matrix = build_simi_matrix(X)
-    DN = np.diag(1/np.sqrt(np.sum(simi_matrix,axis=1)));	
-    LapN = np.eye(m) - np.dot(np.dot(DN,simi_matrix),DN);	
-    U,s,V = np.linalg.svd(LapN,full_matrices=True);	
-    kerN = U[:,m-n_clusters+1:m];	
+    DN = np.diag(1/np.sqrt(np.sum(simi_matrix,axis=1)))	
+    LapN = np.eye(m) - np.dot(np.dot(DN,simi_matrix),DN)
+    U,s,V = np.linalg.svd(LapN,full_matrices=True)
+    kerN = U[:,m-n_clusters+1:m]	
     for i in range(m):		
-        kerN[i,:] = kerN[i,:] / np.linalg.norm(kerN[i,:]);	
-    _,labels = kmeans2(kerN,n_clusters,iter=100);	
+        kerN[i,:] = kerN[i,:] / np.linalg.norm(kerN[i,:])	
+    _,labels = kmeans2(kerN,n_clusters,iter=100)
     return labels
 
 
