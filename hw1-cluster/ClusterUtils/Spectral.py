@@ -14,7 +14,7 @@ def build_simi_matrix(X):
     matrix = np.zeros((m,m))
     for i in range(m):
         matrix[i] = ((X-X[i]) ** 2).sum(axis=1).reshape((1,m))
-    W = np.exp((-2/(sigma**2))* matrix)
+    W = np.exp((-1/(2*(sigma**2)))* matrix)
 
     return W
 

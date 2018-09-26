@@ -13,13 +13,14 @@ def build_dismatrix(dataset,cluster_n):
     matrix = np.zeros((n,n))
     for i in range(n):
         matrix[i] = ((data - data[i]) * (data-data[i])).sum(axis=1)
+    W = np.exp((-1/(2*(sigma**2)))* matrix)
     clusters = {}
     for i in range(n):
         l = label[i]
         if l not in clusters:
             clusters[l] = []
         clusters[l].append(i)
-    return matrix, clusters, n, label
+    return W, clusters, n, label
 
 def tabulate_silhouette(datasets, cluster_nums):
     

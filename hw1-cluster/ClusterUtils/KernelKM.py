@@ -10,8 +10,9 @@ def GaussianKernel(X):
     sigma = 2
     kernel_matrix = np.zeros((n,n))
     for i in range(n):
-        exp = (-1/(2*(sigma**2)) * (X-X[i])**2).sum(axis=1).reshape((1,n))
-        kernel_matrix[i] = np.power(np.e,exp)
+        d_matrix[i] = np.power(np.e,exp)
+    kernel_matrix = np.exp((-1/(2*(sigma**2)))* matrix)
+    
     return kernel_matrix
 
 def kernel_km(X,n_clusters=3, verbose=False):
