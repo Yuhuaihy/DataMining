@@ -63,7 +63,6 @@ def tabulate_silhouette(datasets, cluster_nums):
         silhouette.append(si)
     dfdata = {'CLUSTERS':cluster_nums,'SILHOUETTE_IDX':silhouette}
     df = pd.DataFrame(dfdata)
-    embed()
 
 
     # Return a pandas DataFrame corresponding to the results.

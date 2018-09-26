@@ -10,18 +10,25 @@ from ClusterUtils.ClusterPlotter import _plot_generic_
 from IPython import embed
 def build_simi_matrix(X):
     m = len(X)
+    sigma = 2
     matrix = np.zeros((m,m))
     for i in range(m):
         matrix[i] = ((X-X[i]) ** 2).sum(axis=1).reshape((1,m))
-    return 1-matrix
+    W = np.exp((-2/(sigma**2))* matrix)
+
+    return W
 
 def spectral(X, n_clusters=3, verbose=False):
     m = len(X)
     labels = np.zeros((m,1))
     simi_matrix = build_simi_matrix(X)
-    DN = np.diag(1/np.sqrt(np.sum(simi_matrix,axis=1)))	
-    LapN = np.eye(m) - np.dot(np.dot(DN,simi_matrix),DN)
-    U,s,V = np.linalg.svd(LapN,full_matrices=True)
+    d_matrix = np.sum(simi_matrix,axis=1)
+    l = d_matrix - simi_matrix
+    d2 = np.sqrt(1/d_matrix)
+    d2 = np.diag(d2)
+    
+    lap_matrix = np.eye(m) - np.dot((np.dot(d2,l)),d2)
+    U,s,V = np.linalg.svd(lap_matrix,full_matrices=True)
     kerN = U[:,m-n_clusters+1:m]	
     for i in range(m):		
         kerN[i,:] = kerN[i,:] / np.linalg.norm(kerN[i,:])	

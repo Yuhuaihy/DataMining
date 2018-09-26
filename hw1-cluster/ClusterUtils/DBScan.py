@@ -18,7 +18,7 @@ def expandCluster(c, neighbors, labels, eps, min_points, distance_matrix):
                 labels[pp] = c
                 r = distance_matrix[pp]
                 n = list(np.where(r<eps)[0])[:]
-                if len(n) > min_points:
+                if len(n) >= min_points:
                     add_neighbors = set(n) - set(n).intersection(set(neighbors))
                     neighbors += list(add_neighbors)
         if len(neighbors) == l_prev:
