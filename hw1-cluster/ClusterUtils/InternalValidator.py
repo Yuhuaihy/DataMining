@@ -13,14 +13,14 @@ def build_dismatrix(dataset,cluster_n):
     matrix = np.zeros((n,n))
     for i in range(n):
         matrix[i] = ((data - data[i]) * (data-data[i])).sum(axis=1)
-    W = np.exp((-1/(2*(sigma**2)))* matrix)
+    result_matrix = np.sqrt(matrix)
     clusters = {}
     for i in range(n):
         l = label[i]
         if l not in clusters:
             clusters[l] = []
         clusters[l].append(i)
-    return W, clusters, n, label
+    return result_matrix, clusters, n, label
 
 def tabulate_silhouette(datasets, cluster_nums):
     
@@ -38,6 +38,7 @@ def tabulate_silhouette(datasets, cluster_nums):
     for idx in range(len(datasets)):
         dis_matrix, clusters, n, label = build_dismatrix(datasets[idx], cluster_nums[idx])
         s_matrix = np.zeros((n,1))
+       
         for i in range(n):
             l = label[i]
             a = 0
@@ -89,10 +90,10 @@ def tabulate_cvnn(datasets, cluster_nums, k_vals):
         dis_matrix, clusters, n, _ = build_dismatrix(datasets[idx], cluster_nums[idx])
         sep_list = np.zeros((cluster_nums[idx],ks))
         jth = 0
-        com = 0 
+        com = 0
         for j in clusters:
             points = clusters[j]        
-            r = (dis_matrix[points][:,points]).sum()
+            r = (dis_matrix[points][:,points]).sum() / 2
             nj = len(points)
             sum_sep = np.zeros((1,ks))
             if nj == 1:
@@ -114,6 +115,7 @@ def tabulate_cvnn(datasets, cluster_nums, k_vals):
             sep = (1.0/nj) * sum_sep
             sep_list[jth] = sep.copy()
             jth += 1
+        com = com / cluster_nums[idx]
         sep_ks = sep_list.max(axis=0)
         sep_total[idx] = sep_ks.copy()
         com_total.append(com)
@@ -122,9 +124,16 @@ def tabulate_cvnn(datasets, cluster_nums, k_vals):
     sep_norm = sep_total/ max_sep
     com_norm = com_total/ max_com
     cvnn_total = sep_norm + np.array([com_norm]).reshape((len(cluster_nums), 1))
+    cvnn = list(cvnn_total.flat)
+    c = []
+    k = []
     for i in range(len(cluster_nums)):
         for j in range(ks):
-            data_matrix = data_matrix.append(pd.DataFrame({'CLUSTER': [cluster_nums[i]], 'K': [k_vals[j]],'CVNN':[cvnn_total[i][j]]}))
+            c.append(cluster_nums[i])
+            k.append(k_vals[j])
+    df = {'CLUSTERS':c,'K':k,'CVNN':cvnn}
+    data_matrix = pd.DataFrame(df)
+
     
     return data_matrix
 
@@ -148,7 +157,7 @@ class InternalValidator:
         """
 
     def __init__(self, datasets, cluster_nums, k_vals=[1, 5, 10, 20]):
-        self.datasets = datasets
+        self.datasets = list(map(lambda df : df.drop('CENTROID', axis=0), datasets))
         self.cluster_nums = cluster_nums
         self.k_vals = k_vals
 

@@ -5,6 +5,7 @@ import numpy as np
 import time
 from IPython import embed
 import random
+from scipy.optimize import linear_sum_assignment as ls
 def build_matrix(true_labels, pred_labels):
     n = len(pred_labels)
     pred = set(pred_labels)
@@ -71,17 +72,22 @@ def find_accuracy(true_labels, pred_labels):
 
     # Implement.
     # Return a number corresponding to the accuracy of the two sets of labels.
+    m = len(true_labels)
     matrix = build_matrix(true_labels, pred_labels)
     cluster_num, class_num = matrix.shape
-    cluster_sum = matrix.sum(axis=1, dtype=float).reshape((cluster_num,1))
-    class_sum = matrix.sum(axis=0, dtype=float).reshape((1,class_num))
-    p_matrix = matrix/cluster_sum   # probability pij
-    recall_matrix = matrix/ class_sum
-    f_matrix = (2 * p_matrix * recall_matrix) /(p_matrix + recall_matrix)
-    
+    # cluster_sum = matrix.sum(axis=1, dtype=float).reshape((cluster_num,1))
+    # class_sum = matrix.sum(axis=0, dtype=float).reshape((1,class_num))
+    # p_matrix = matrix/cluster_sum   # probability pij
+    # recall_matrix = matrix/ class_sum
+    # f_matrix = (2 * p_matrix * recall_matrix) /(p_matrix + recall_matrix)
+    rows, cols = ls(-1 * matrix)
+    correct = 0
+    for row, col in zip(rows, cols):
+        correct += matrix[row][col]
 
 
-    return 1
+
+    return correct/ m
 
 
 # The code below is completed for you.
