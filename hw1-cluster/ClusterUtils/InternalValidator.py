@@ -22,6 +22,32 @@ def build_dismatrix(dataset,cluster_n):
         clusters[l].append(i)
     return result_matrix, clusters, n, label
 
+def findSep(k, dis_matrix, points):
+    n, n = dis_matrix.shape
+    ni = len(points)
+    weights = []
+    for i in points:
+        tuple_dis = [(ith,dis_matrix[i][ith]) for ith in range(n)]
+        tuple_dis = sorted(tuple_dis, key=lambda x:x[1])
+        q = 0
+        for p in tuple_dis[1:k+1]:
+            if p[0] not in points:
+                q += 1
+        weight = float(q)/float(k)
+        weights.append(weight)
+    avg_weight = np.array(weights).mean()
+    return avg_weight
+
+def findCom(points, dis_matrix):
+    ni = len(points)
+    points_incluster = dis_matrix[points][:,points]
+    dis_sum = points_incluster.sum()/2
+    com = 2*dis_sum/(ni*(ni-1)) if ni > 1 else 0
+    return com
+
+
+
+
 def tabulate_silhouette(datasets, cluster_nums):
     
 
@@ -82,58 +108,46 @@ def tabulate_cvnn(datasets, cluster_nums, k_vals):
     # cluster_nums = [2, 3, 4]
     
     ks = len(k_vals)
-    sep_total = np.zeros((len(cluster_nums),ks))
-    com_total = []
-    data_matrix = pd.DataFrame(columns=('CLUSTER','K','CVNN'))
-    # Return a pandas DataFrame corresponding to the results.
-    for idx in range(len(cluster_nums)):
-        dis_matrix, clusters, n, _ = build_dismatrix(datasets[idx], cluster_nums[idx])
-        sep_list = np.zeros((cluster_nums[idx],ks))
-        jth = 0
-        com = 0
-        for j in clusters:
-            points = clusters[j]        
-            r = (dis_matrix[points][:,points]).sum() / 2
-            nj = len(points)
-            sum_sep = np.zeros((1,ks))
-            if nj == 1:
-                sep_list[jth] = sum_sep.copy()
-                jth += 1
-                continue
-            com += (2.0/(nj*(nj-1.0))) * r
-            for i in points:
-                weight_kth = []
-                tuple_dis = [(ith,dis_matrix[i][ith]) for ith in range(n)]
-                tuple_dis = sorted(tuple_dis, key=lambda x:x[1])
-                for k in k_vals:
-                    q = 0
-                    for p in tuple_dis[1:k+1]:
-                        if p[0] not in points:
-                            q += 1
-                    weight_kth.append(float(q)/float(k))
-                sum_sep += weight_kth
-            sep = (1.0/nj) * sum_sep
-            sep_list[jth] = sep.copy()
-            jth += 1
-        com = com / cluster_nums[idx]
-        sep_ks = sep_list.max(axis=0)
-        sep_total[idx] = sep_ks.copy()
-        com_total.append(com)
-    max_com = max(com_total)
-    max_sep = sep_total.max(axis=0)
-    sep_norm = sep_total/ max_sep
-    com_norm = com_total/ max_com
-    cvnn_total = sep_norm + np.array([com_norm]).reshape((len(cluster_nums), 1))
-    cvnn = list(cvnn_total.flat)
-    c = []
-    k = []
-    for i in range(len(cluster_nums)):
-        for j in range(ks):
-            c.append(cluster_nums[i])
-            k.append(k_vals[j])
-    df = {'CLUSTERS':c,'K':k,'CVNN':cvnn}
-    data_matrix = pd.DataFrame(df)
+    k_out = []
+    cluster_out = []
+    cvnn_out = []
+    
+    for k in k_vals:
+        separations = []
+        compacts = []
+        for idx in range(len(cluster_nums)):  ##for each dataset of nc clustering number,
+            dis_matrix, clusters, n, _ = build_dismatrix(datasets[idx], cluster_nums[idx])
+            nc = cluster_nums[idx]
+            sep = []
+            coms = []
 
+            for i in clusters:
+                points = clusters[i]
+                avg_weight = findSep(k, dis_matrix, points)
+                sep.append(avg_weight)
+                ## com i
+                com = findCom(points, dis_matrix)
+                coms.append(com)
+            separation = max(sep)
+            separations.append(separation)
+
+            #compact = sum(coms) #???????
+            compact = np.array(coms).mean()
+            compacts.append(compact)
+        sep_max = max(separations)
+        sep_norm = (np.array(separations)) / sep_max
+
+        com_max = max(compacts)
+        com_norm = (np.array(compacts)) / com_max
+
+        cvnn = sep_norm + com_norm
+
+        k_out += [k] * len(cluster_nums)
+        cvnn_out += list(cvnn)
+        cluster_out += cluster_nums
+    
+    df = {'CLUSTERS':cluster_out,'K':k_out,'CVNN':cvnn_out}
+    data_matrix = pd.DataFrame(df)
     
     return data_matrix
 

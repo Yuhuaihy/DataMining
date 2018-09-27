@@ -45,7 +45,7 @@ from ClusterUtils import Spectral
 
 
 
-km = KMeans(init='global', csv_path='Datasets/image_segmentation.csv')
+km = KMeans( csv_path='Datasets/image_segmentation.csv')
 dfs = []
 cs = []
 for i in range(2, 10):
