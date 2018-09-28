@@ -34,7 +34,7 @@ def spectral(X, n_clusters=3, verbose=False):
         kerN[i,:] = kerN[i,:] / np.linalg.norm(kerN[i,:])	
     _,labels = kmeans2(kerN,n_clusters,iter=100)
     return labels
-
+##numpy.linalg.eig
 
 
     # Implement.

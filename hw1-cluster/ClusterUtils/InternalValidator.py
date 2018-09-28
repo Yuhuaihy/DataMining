@@ -131,8 +131,8 @@ def tabulate_cvnn(datasets, cluster_nums, k_vals):
             separation = max(sep)
             separations.append(separation)
 
-            #compact = sum(coms) #???????
-            compact = np.array(coms).mean()
+            compact = sum(coms) #???????
+            # compact = np.array(coms).mean()
             compacts.append(compact)
         sep_max = max(separations)
         sep_norm = (np.array(separations)) / sep_max
