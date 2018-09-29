@@ -46,6 +46,31 @@ def findCom(points, dis_matrix):
     return com
 
 
+def get_sihouette(dis_matrix, clusters, n, label, cluster_num):
+    s_matrix = np.zeros((n,1))
+    for i in range(n):
+        l = label[i]
+        a = 0
+        b = []
+        for k in clusters:
+            points = clusters[k]
+            r = dis_matrix[i][points]
+            size = len(r)
+            if k==l:
+                a = 0 if size== 1 else r.sum()/(size-1)
+            else:
+                b.append(r.sum()/size)
+        b = min(b)
+        s = (b-a)/max(a,b)
+        s_matrix[i] = s
+    s_total = 0
+    for k in clusters:
+        points = clusters[k]
+        s = s_matrix[points]
+        s_mean_cluster = np.mean(s)
+        s_total += s_mean_cluster
+    si = s_total/cluster_num
+    return si
 
 
 def tabulate_silhouette(datasets, cluster_nums):
@@ -63,31 +88,7 @@ def tabulate_silhouette(datasets, cluster_nums):
     silhouette = []
     for idx in range(len(datasets)):
         dis_matrix, clusters, n, label = build_dismatrix(datasets[idx], cluster_nums[idx])
-        s_matrix = np.zeros((n,1))
-       
-        for i in range(n):
-            l = label[i]
-            a = 0
-            b = []
-            for k in clusters:
-                points = clusters[k]
-                r = dis_matrix[i][points]
-                size = len(r)
-                if k==l:
-                    a = 0 if size== 1 else r.sum()/(size-1)
-                else:
-                    b.append(r.sum()/size)
-                
-            b = min(b)
-            s = (b-a)/max(a,b)
-            s_matrix[i] = s
-        s_total = 0
-        for k in clusters:
-            points = clusters[k]
-            s = s_matrix[points]
-            s_mean_cluster = np.mean(s)
-            s_total += s_mean_cluster
-        si = s_total/cluster_nums[idx]
+        si = get_sihouette(dis_matrix, clusters, n, label, cluster_nums[idx])
         silhouette.append(si)
     dfdata = {'CLUSTERS':cluster_nums,'SILHOUETTE_IDX':silhouette}
     df = pd.DataFrame(dfdata)
@@ -132,7 +133,6 @@ def tabulate_cvnn(datasets, cluster_nums, k_vals):
             separations.append(separation)
 
             compact = sum(coms) #???????
-            # compact = np.array(coms).mean()
             compacts.append(compact)
         sep_max = max(separations)
         sep_norm = (np.array(separations)) / sep_max

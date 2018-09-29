@@ -40,16 +40,16 @@ def spectral(X, n_clusters=3, verbose=False):
     
     lap_matrix = np.eye(m) - np.dot((np.dot(d2,l)),d2)
 
-    eig_vec = getEigVec(lap_matrix, n_clusters)
-    eig_vec = eig_vec.real
-    _,labels = kmeans2(eig_vec,n_clusters,iter=100)
+    # eig_vec = getEigVec(lap_matrix, n_clusters)
+    # eig_vec = eig_vec.real
+    # _,labels = kmeans2(eig_vec,n_clusters,iter=100)
     
 
-    # U,s,V = np.linalg.svd(lap_matrix,full_matrices=True)
-    # kerN = U[:,m-n_clusters+1:m]	
-    # for i in range(m):		
-    #     kerN[i,:] = kerN[i,:] / np.linalg.norm(kerN[i,:])	
-    # _,labels = kmeans2(kerN,n_clusters,iter=100)
+    U,s,V = np.linalg.svd(lap_matrix,full_matrices=True)
+    kerN = U[:,m-n_clusters:]	
+    for i in range(m):		
+        kerN[i,:] = kerN[i,:] / np.linalg.norm(kerN[i,:])	
+    _,labels = kmeans2(kerN,n_clusters,iter=100)
     
     
     return labels

@@ -5,26 +5,10 @@ import time
 from ClusterUtils.SuperCluster import SuperCluster
 from ClusterUtils.ClusterPlotter import _plot_kmeans_
 import random
-from ClusterUtils.ExternalValidator import find_accuracy, find_norm_MI, find_norm_rand
+from ClusterUtils.InternalValidator import get_sihouette
 from IPython import embed
-def k_means(X, n_clusters=3, init='random', algorithm='lloyds', n_init=1, max_iter=300, verbose=False):
-
-    # Implement.
-
-    # Input: np.darray of samples
-
-    # Return the following:
-    #
-    # 1. labels: An array or list-type object corresponding to the predicted
-    #  cluster numbers,e.g., [0, 0, 0, 1, 1, 1, 2, 2, 2]
-    # 2. centroids: An array or list-type object corresponding to the vectors
-    # of the centroids, e.g., [[0.5, 0.5], [-1, -1], [3, 3]]
-    # 3. inertia: A number corresponding to some measure of fitness,
-    # generally the best of the results from executing the algorithm n_init times.
-    # You will want to return the 'best' labels and centroids by this measure.
+def centroid_init(init, n_clusters, X):
     m,n = X.shape
-    labels = np.zeros((m,1))
-    
     if init == 'random':
         c_index = random.sample(range(m), n_clusters)
         centroids = X[c_index]
@@ -70,12 +54,15 @@ def k_means(X, n_clusters=3, init='random', algorithm='lloyds', n_init=1, max_it
                 d[j] = sum_d
             idx = np.argmin(d)
             c_index.append(idx)
-                
-
         centroids = X[c_index]
     else:
         c_index = random.sample(range(m), n_clusters)
         centroids = X[c_index]
+    return centroids
+
+def getLabels(X,centroids,n_clusters, algorithm, max_iter, verbose):
+    m = len(X)
+    labels = np.zeros((m,1))
     if algorithm == 'lloyds':
         for _ in range(max_iter):
             for i in range(m):
@@ -84,7 +71,6 @@ def k_means(X, n_clusters=3, init='random', algorithm='lloyds', n_init=1, max_it
             for k in range(n_clusters):
                 r = X[np.where(labels==k)[0]][:]
                 new_mean = r.mean(axis=0)
-                
                 if new_mean.shape[0] == 0:
                     centroids[k] = np.zeros((n,1))
                 else:
@@ -113,20 +99,49 @@ def k_means(X, n_clusters=3, init='random', algorithm='lloyds', n_init=1, max_it
                     temp2 = X[np.where(labels==new_cen_idx)][:]
                     new_mean = (temp2.sum(axis=0)+X[i])/(len(temp2)+1)
                     centroids[new_cen_idx] = new_mean[:]
-
-                        
-                
-                    
+    return labels
 
 
 
-    
+def k_means(X, n_clusters=3, init='random', algorithm='lloyds', n_init=1, max_iter=300, verbose=False):
 
+    # Implement.
 
+    # Input: np.darray of samples
 
+    # Return the following:
+    #
+    # 1. labels: An array or list-type object corresponding to the predicted
+    #  cluster numbers,e.g., [0, 0, 0, 1, 1, 1, 2, 2, 2]
+    # 2. centroids: An array or list-type object corresponding to the vectors
+    # of the centroids, e.g., [[0.5, 0.5], [-1, -1], [3, 3]]
+    # 3. inertia: A number corresponding to some measure of fitness,
+    # generally the best of the results from executing the algorithm n_init times.
+    # You will want to return the 'best' labels and centroids by this measure.
+    max_sihouettes = 0
+    centroids_return = []
+    labels_return = []
+    for i in range(n_init):
+        centroids = centroid_init(init, n_clusters, X)
+        labels = getLabels(X,centroids,n_clusters,algorithm, max_iter, verbose)
+        m,n = X.shape
+        matrix = np.zeros((m,m))
+        for i in range(m):
+            matrix[i] = ((X - X[i]) * (X-X[i])).sum(axis=1)
+        dis_matrix = np.sqrt(matrix)
+        clusters = {}
+        for i in range(m):
+            l = labels[i][0]
+            if l not in clusters:
+                clusters[l] = []
+            clusters[l].append(i)
+        sihouette = get_sihouette(dis_matrix, clusters, m, labels,n_clusters)
+        if sihouette > max_sihouettes:
+            max_sihouettes = sihouette
+            labels_return = labels[:]
+            centroids_return = centroids[:]
 
-
-    return labels, centroids, None
+    return labels_return, centroids_return, max_sihouettes 
 
 
 # The code below is completed for you.

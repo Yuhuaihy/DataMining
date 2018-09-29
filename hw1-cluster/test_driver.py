@@ -45,23 +45,23 @@ from ClusterUtils import Spectral
 
 
 
-# km = KMeans( csv_path='Datasets/well_separated.csv')
-# dfs = []
-# cs = []
-# for i in range(2, 10):
-#     km.n_clusters = i # IMPORTANT -- Update the number of clusters to run.
-#     #km.fit_from_csv()
-#     #km.show_plot()
-#     dfs.append(km.fit_predict_from_csv())
-#     cs.append(i)
+km = KMeans( csv_path='Datasets/well_separated.csv')
+dfs = []
+cs = []
+for i in range(2, 10):
+    km.n_clusters = i # IMPORTANT -- Update the number of clusters to run.
+    #km.fit_from_csv()
+    #km.show_plot()
+    dfs.append(km.fit_predict_from_csv())
+    cs.append(i)
 
-# iv = InternalValidator(dfs, cluster_nums=cs)
-# iv.make_cvnn_table()
-# iv.show_cvnn_plot()
+iv = InternalValidator(dfs, cluster_nums=cs)
+iv.make_cvnn_table()
+iv.show_cvnn_plot()
 # iv.save_cvnn_plot()
 
-# iv.make_silhouette_table()
-# iv.show_silhouette_plot()
+iv.make_silhouette_table()
+iv.show_silhouette_plot()
 # iv.save_silhouette_plot()
 
 #iv.save_csv(cvnn=True, silhouette=True)
@@ -94,8 +94,8 @@ from ClusterUtils import Spectral
 # kernel.save_plot('kernel_plot')
 # kernel.save_csv()
 
-spectral = Spectral(n_clusters=2,csv_path='Datasets/eye_dense.csv' )
-spectral.fit_from_csv()
-spectral.show_plot()
+# spectral = Spectral(n_clusters=2,csv_path='Datasets/eye_dense.csv' )
+# spectral.fit_from_csv()
+# spectral.show_plot()
 # spectral.save_plot('spectral')
 # spectral.save_csv()
