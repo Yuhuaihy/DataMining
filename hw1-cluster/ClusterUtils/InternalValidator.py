@@ -60,7 +60,7 @@ def get_sihouette(dis_matrix, clusters, n, label, cluster_num):
                 a = 0 if size== 1 else r.sum()/(size-1)
             else:
                 b.append(r.sum()/size)
-        b = min(b)
+        b = min(b) if b else 0
         s = (b-a)/max(a,b)
         s_matrix[i] = s
     s_total = 0

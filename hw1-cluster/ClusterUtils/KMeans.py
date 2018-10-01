@@ -70,10 +70,10 @@ def getLabels(X,centroids,n_clusters, algorithm, max_iter, verbose):
                 labels[i] = d.argmin()
             for k in range(n_clusters):
                 r = X[np.where(labels==k)[0]][:]
-                new_mean = r.mean(axis=0)
-                if new_mean.shape[0] == 0:
+                if not r.all():
                     centroids[k] = np.zeros((n,1))
                 else:
+                    new_mean = r.mean(axis=0)
                     centroids[k] = new_mean[:]
     if algorithm == 'hartigans':
         labels = np.array([random.randrange(0,n_clusters) for _ in range(m)]).reshape((m,1))
