@@ -29,7 +29,7 @@ def kernel_km(X,n_clusters=3, verbose=False):
     ### distance = k(xi,xi)^2 +2* sum(k(xi,xj))/c + sum(k(xj,xl))/c^2
     ### addend1+addend2+addend3
     distance = np.zeros((n_clusters,1))
-    for _ in range(2):
+    for _ in range(10):
         for i in range(m):
             for k in range(n_clusters):
                 points = np.where(labels==k)[0]

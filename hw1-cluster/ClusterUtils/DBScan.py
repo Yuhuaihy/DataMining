@@ -23,41 +23,18 @@ def expandCluster(c, neighbors, labels, eps, min_points, distance_matrix):
                     neighbors += list(add_neighbors)
         if len(neighbors) == l_prev:
             break
-#     expandCluster(P, NeighborPts, C, eps, MinPts) {
-#    add Pto cluster C
-#    foreach point P' in NeighborPts {
-#       ifP' is not visited {
-#         mark P' as visited
-#         NeighborPts' = regionQuery(P', eps)
-#         if sizeof(NeighborPts') >= MinPts
-#            NeighborPts = NeighborPts joined with NeighborPts'
-#       }
-#       ifP' is not yet member of any cluster
-#         add P' to cluster C
-#    }
-
-
-
 def dbscan(X, eps=1, min_points=10, verbose=False):
-
-    # Implement.
-
-    # Input: np.darray of samples
-
-    # Return a array or list-type object corresponding to the predicted cluster
-    # numbers, e.g., [0, 0, 0, 1, 1, 1, 2, 2, 2]
     m = len(X)
     distance_matrix = np.zeros((m,m))
     for i in range(m):
         distance_matrix[i] = ((X-X[i])**2).sum(axis=1)
     labels = np.zeros((m,1))
-    ##label = 0 unvisited -1 noise
     c = 1
     for i in range(m):
         if labels[i] != 0:
             continue
         r = distance_matrix[i]
-        neighbors = list(np.where(r<eps)[0])[:]
+        neighbors = list(np.where(r<eps)[0])[1:]
         num = len(neighbors)
         if num<min_points:
             labels[i] = -1
@@ -65,8 +42,6 @@ def dbscan(X, eps=1, min_points=10, verbose=False):
         c += 1
         labels[i] = c
         for p in neighbors:
-            if p==i:
-                continue
             expandCluster(c,neighbors,labels,eps,min_points,distance_matrix)
     return labels
 
