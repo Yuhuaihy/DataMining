@@ -77,29 +77,30 @@ def getLabels(X,centroids,n_clusters, algorithm, max_iter, verbose):
                     centroids[k] = new_mean[:]
     if algorithm == 'hartigans':
         labels = np.array([random.randrange(0,n_clusters) for _ in range(m)]).reshape((m,1))
-        for _ in range(max_iter):
+        for iter in range(max_iter):
             for i in range(m):
                 idx = labels[i]
-                old_dis = 0
                 d_matrix = np.zeros((n_clusters,1))
                 for k in range(n_clusters): 
-                    r = X[np.where(labels==k)][:]
+                    r = X[np.where(labels==k)[0]]
                     d = ((r-centroids[k])**2).sum()
                     d_matrix[k] = d
-                    old_dis += d
                 delta_matrix = np.zeros((n_clusters,1))
-                change_idx = d_matrix[idx] - ((X[i]-centroids[idx])**2).sum()
+                change_idx = (X[i]-centroids[idx])**2
                 for k in range(n_clusters):
-                    delta_matrix[k] = delta_matrix[k] - change_idx + ((centroids[k]-X[i])**2).sum()
+                    delta_matrix[k] = 0 - change_idx.sum() + ((centroids[k]-X[i])**2).sum()
                 new_cen_idx = np.argmin(delta_matrix)
                 if new_cen_idx != idx:
-                    temp =  X[np.where(labels==k)][:]
-                    old_mean = (temp.sum(axis=0)  - X[i])/(len(temp)-1)
+                    temp =  X[np.where(labels==new_cen_idx)[0]]
+                    num = len(temp)
+                    old_mean = ((temp.sum(axis=0)) -X[i]) / (num-1)
                     centroids[idx] = old_mean[:]
-                    temp2 = X[np.where(labels==new_cen_idx)][:]
-                    new_mean = (temp2.sum(axis=0)+X[i])/(len(temp2)+1)
+                    temp2 = X[np.where(labels==new_cen_idx)[0]][:]
+                    new_mean = ((temp2.sum(axis=0)) + X[i])/(len(temp2)+1)
                     centroids[new_cen_idx] = new_mean[:]
-    return labels
+                    labels[i] = new_cen_idx
+              
+    return labels, centroids
 
 
 
@@ -118,12 +119,13 @@ def k_means(X, n_clusters=3, init='random', algorithm='lloyds', n_init=1, max_it
     # 3. inertia: A number corresponding to some measure of fitness,
     # generally the best of the results from executing the algorithm n_init times.
     # You will want to return the 'best' labels and centroids by this measure.
-    max_sihouettes = 0
+    max_sihouettes = -10
     centroids_return = []
     labels_return = []
     for i in range(n_init):
         centroids = centroid_init(init, n_clusters, X)
-        labels = getLabels(X,centroids,n_clusters,algorithm, max_iter, verbose)
+        labels, centroids = getLabels(X,centroids,n_clusters,algorithm, max_iter, verbose)
+        embed()
         m,n = X.shape
         matrix = np.zeros((m,m))
         for i in range(m):
@@ -140,7 +142,6 @@ def k_means(X, n_clusters=3, init='random', algorithm='lloyds', n_init=1, max_it
             max_sihouettes = sihouette
             labels_return = labels[:]
             centroids_return = centroids[:]
-
     return labels_return, centroids_return, max_sihouettes 
 
 
