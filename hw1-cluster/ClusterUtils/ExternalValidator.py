@@ -110,12 +110,13 @@ class ExternalValidator:
 
     def __init__(self, df = None, true_labels = None, pred_labels = None):
         
+        if 'CENTROID' in df.index:
+            df = df.drop('CENTROID', axis=0)
+        self.DF = df
         self.true_labels = true_labels
         self.pred_labels = pred_labels
 
         if df is not None:
-            df = df.drop('CENTROID', axis=0)  # IMPORTANT -- Drop centroid rows before processing
-            self.DF = df
             self.extract_labels()
         elif true_labels is None or pred_labels is None:
             print('Warning: No data provided')
