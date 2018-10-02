@@ -61,7 +61,7 @@ def centroid_init(init, n_clusters, X):
     return centroids
 
 def getLabels(X,centroids,n_clusters, algorithm, max_iter, verbose):
-    m = len(X)
+    m,n = X.shape
     labels = np.zeros((m,1))
     if algorithm == 'lloyds':
         for _ in range(max_iter):
@@ -70,7 +70,7 @@ def getLabels(X,centroids,n_clusters, algorithm, max_iter, verbose):
                 labels[i] = d.argmin()
             for k in range(n_clusters):
                 r = X[np.where(labels==k)[0]][:]
-                if not r.all():
+                if not r.any():
                     centroids[k] = np.zeros((n,1))
                 else:
                     new_mean = r.mean(axis=0)
@@ -119,13 +119,19 @@ def k_means(X, n_clusters=3, init='random', algorithm='lloyds', n_init=1, max_it
     # 3. inertia: A number corresponding to some measure of fitness,
     # generally the best of the results from executing the algorithm n_init times.
     # You will want to return the 'best' labels and centroids by this measure.
+    if n_init==1:
+        centroids = centroid_init(init, n_clusters, X)
+        labels, centroids = getLabels(X,centroids,n_clusters,algorithm, max_iter, verbose)
+        return labels, centroids, None
+    
     max_sihouettes = -10
     centroids_return = []
     labels_return = []
     for i in range(n_init):
         centroids = centroid_init(init, n_clusters, X)
         labels, centroids = getLabels(X,centroids,n_clusters,algorithm, max_iter, verbose)
-        embed()
+        if n_init==1:
+            return labels, centroids, None
         m,n = X.shape
         matrix = np.zeros((m,m))
         for i in range(m):

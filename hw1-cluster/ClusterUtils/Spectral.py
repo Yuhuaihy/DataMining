@@ -46,7 +46,7 @@ def spectral(X, n_clusters=3, verbose=False):
     
 
     U,s,V = np.linalg.svd(lap_matrix,full_matrices=True)
-    kerN = U[:,m-n_clusters:]	
+    kerN = U[:,m-n_clusters+1:]	
     for i in range(m):		
         kerN[i,:] = kerN[i,:] / np.linalg.norm(kerN[i,:])	
     _,labels = kmeans2(kerN,n_clusters,iter=100)
