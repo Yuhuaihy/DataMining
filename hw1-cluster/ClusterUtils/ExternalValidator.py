@@ -16,8 +16,8 @@ def build_matrix(true_labels, pred_labels):
     classes = dict(zip(tru,range(class_num)))
     matrix = np.zeros((cluster_num,class_num))
     for i in range(n):
-        pred_label = pred_labels[i]
-        true_label = true_labels[i]
+        pred_label = list(pred_labels)[i]
+        true_label = list(true_labels)[i]
         k = clusters[pred_label]
         c = classes[true_label]
         matrix[k][c] += 1

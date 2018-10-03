@@ -9,6 +9,8 @@ from ClusterUtils.SuperCluster import SuperCluster
 from ClusterUtils.ClusterPlotter import _plot_generic_
 from IPython import embed
 from numpy import linalg as LA
+import scipy.sparse as sps
+from sklearn.cluster import KMeans
 def build_simi_matrix(X):
     m = len(X)
     sigma = 2
@@ -16,34 +18,36 @@ def build_simi_matrix(X):
     for i in range(m):
         matrix[i] = ((X-X[i]) ** 2).sum(axis=1).reshape((1,m))
     W = np.exp((-1/(2*(sigma**2)))* matrix)
-
+    W = W - np.diag(np.diag(W))
     return W
-def getEigVec(Lap_matrix, n_cluster):
-    val, vec = LA.eig(Lap_matrix)
-    dim = len(val)
-    dictval = dict(zip(val, range(dim)))
-    keig = np.sort(val)[:n_cluster]
-    idx = [dictval[k] for k in keig]
-    return vec[:,idx]
 
+# def build_lap(A):
+#     D = np.zeros(A.shape)
+#     w = np.sum(A, axis=0)
+#     D.flat[::len(w) + 1] = w ** (-0.5)  # set the diag of D to w
+#     return D.dot(A).dot(D)
+    
+# def getEigVec(Lap_matrix, n_cluster):
+#     val_prop, vect_prop = sps.linalg.eigs(Lap_matrix, n_cluster)
+#     X = vect_prop.real    
+#     rows_norm = np.linalg.norm(vect_prop.real, axis=1, ord=2)
+#     return (X.T / rows_norm).T
 
-
+    # val, vec = LA.eig(Lap_matrix)
+    # dim = len(val)
+    # dictval = dict(zip(val, range(dim)))
+    # keig = np.sort(val)[:n_cluster]
+    # idx = [dictval[k] for k in keig]
+    # return vec[:,idx]
 
 def spectral(X, n_clusters=3, verbose=False):
     m = len(X)
     labels = np.zeros((m,1))
     simi_matrix = build_simi_matrix(X)
     d_matrix = np.sum(simi_matrix,axis=1)
-    l = d_matrix - simi_matrix
     d2 = np.sqrt(1/d_matrix)
     d2 = np.diag(d2)
-    
-    lap_matrix = np.eye(m) - np.dot((np.dot(d2,l)),d2)
-
-    # eig_vec = getEigVec(lap_matrix, n_clusters)
-    # eig_vec = eig_vec.real
-    # _,labels = kmeans2(eig_vec,n_clusters,iter=100)
-    
+    lap_matrix = np.dot((np.dot(d2,simi_matrix)),d2)
 
     U,s,V = np.linalg.svd(lap_matrix,full_matrices=True)
     kerN = U[:,m-n_clusters+1:]	
@@ -51,17 +55,10 @@ def spectral(X, n_clusters=3, verbose=False):
         kerN[i,:] = kerN[i,:] / np.linalg.norm(kerN[i,:])	
     _,labels = kmeans2(kerN,n_clusters,iter=100)
     
-    
     return labels
 ##numpy.linalg.eig
 
 
-    # Implement.
-
-    # Input: np.darray of samples
-
-    # Return an array or list-type object corresponding to the predicted
-    # cluster numbers, e.g., [0, 0, 0, 1, 1, 1, 2, 2, 2]
 
 
 

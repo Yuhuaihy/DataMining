@@ -71,7 +71,7 @@ def getLabels(X,centroids,n_clusters, algorithm, max_iter, verbose):
             for k in range(n_clusters):
                 r = X[np.where(labels==k)[0]][:]
                 if not r.any():
-                    centroids[k] = np.zeros((n,1))
+                    centroids[k] = np.zeros((1,n))
                 else:
                     new_mean = r.mean(axis=0)
                     centroids[k] = new_mean[:]
