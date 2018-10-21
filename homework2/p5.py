@@ -10,4 +10,5 @@ from knn import Knn
 iris = datasets.load_iris()
 X = iris.data
 y = iris.target
-knn = Knn(X,y)
+knn = Knn(X,y,ks = [1,2,3])
+knn.classify()
