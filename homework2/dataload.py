@@ -14,11 +14,13 @@ def load_data():
     mat_content = sio.loadmat(trainy_path)
     trainy = mat_content['train_label'].transpose()
     train_label = np.where(trainy == 1)[1].reshape((m,1))
+
     mat_content = sio.loadmat(testX_path)
     testX = mat_content['test_data'].transpose()
+    m2, n2 = testX.shape
     mat_content = sio.loadmat(testy_path)
     testy = mat_content['test_label'].transpose()
-    test_label = np.where(testy == 1)[1].reshape((m,1))
+    test_label = np.where(testy == 1)[1].reshape((m2,1))
     return trainX, trainy, testX, testy
 
  

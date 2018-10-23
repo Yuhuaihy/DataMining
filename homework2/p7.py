@@ -12,9 +12,18 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.naive_bayes import GaussianNB
 from dataload import load_data
+from sklearn import preprocessing
+from IPython import embed
 h = .02  # step size in the mesh
 
 X_train, y_train, X_test, y_test = load_data()
+# min_max_scaler = preprocessing.MinMaxScaler()
+# X_train_minmax = min_max_scaler.fit_transform(X_train)
+# X_test_minmax = min_max_scaler.fit_transform(X_test)
+
+scaler = preprocessing.StandardScaler().fit(X_train)
+trainX = scaler.transform(X_train)
+testX = scaler.transform(X_test)
 
 names = ["Nearest Neighbors", "Decision Tree", "Random Forest", "Neural Net","Naive Bayes"]
 
@@ -26,4 +35,6 @@ classifiers = [
     GaussianNB()]
 
 for name, clf in zip(names, classifiers):
-    clf.fit(X_train, y_train)
+    clf.fit(trainX, y_train)
+    score = clf.score(testX, y_test)
+    embed()
