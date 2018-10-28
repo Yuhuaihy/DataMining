@@ -16,9 +16,9 @@ class SVM(object):
         
 
     def fit(self):
-        w = np.zeros((self.classes, self.n))
+        w = np.ones((self.classes, self.n))
         eta = 1
-        epochs = 1000
+        epochs = 100
         for epoch in range(1,epochs):
             for i in range(self.m):
                 for j in range(self.classes):

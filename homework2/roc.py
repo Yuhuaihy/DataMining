@@ -11,7 +11,7 @@ fpr2, tpr2, thresholds2 = roc_curve(y, y2)
 
 roc_auc = auc(fpr, tpr)
 roc_auc2 = auc(fpr2, tpr2)
-embed()
+
 plt.figure()
 plt.title('ROC')
 plt.plot(fpr, tpr, 'b', label = 'AUC = %0.2f' % roc_auc, color='darkorange')
