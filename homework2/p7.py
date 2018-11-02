@@ -27,12 +27,12 @@ scaler = preprocessing.StandardScaler().fit(X_train)
 trainX = scaler.transform(X_train)
 testX = scaler.transform(X_test)
 
-names = ["Nearest Neighbors", "Decision Tree", "Random Forest", "Neural Net","AdaBoost", "Naive Bayes"]
+names = ["Nearest Neighbors", "Decision Tree", "Neural Net","AdaBoost", "Naive Bayes"]
 
 classifiers = [
     KNeighborsClassifier(3),
     DecisionTreeClassifier(max_depth=5),
-    RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
+    #RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
     MLPClassifier(alpha=1),
     AdaBoostClassifier(),
     GaussianNB()]
