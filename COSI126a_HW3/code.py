@@ -49,10 +49,10 @@ def computeConfidence(itemFreq, twoItemsets, item1, item2):
     
 total, _ = df.shape    
 miniSupport = 50
-# oneItemFreq = oneItemsetFreq(data)
-oneItemFreq = oneItemsetFreq(test_data)
-# twoItemsets = twoItemsetFreq(df, oneItemFreq, miniSupport)
-twoItemsets = twoItemsetFreq(test_df, oneItemFreq, miniSupport)
+oneItemFreq = oneItemsetFreq(data)
+# oneItemFreq = oneItemsetFreq(test_data)
+twoItemsets = twoItemsetFreq(df, oneItemFreq, miniSupport)
+# twoItemsets = twoItemsetFreq(test_df, oneItemFreq, miniSupport)
 item_a = []
 item_b = []
 support_ab = []
