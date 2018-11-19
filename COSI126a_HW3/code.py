@@ -1,5 +1,6 @@
 import pandas as pd
 from pre import generate_cols, prep_df
+import tqdm
 # from IPython import embed
 real_data_path = 'Online_Retail.csv'
 df = pd.read_csv(real_data_path, names=list(range(0,6)))
@@ -48,9 +49,9 @@ def computeConfidence(itemFreq, twoItemsets, item1, item2):
     
 total, _ = df.shape    
 miniSupport = 50
-# oneItemFreq = oneItemsetFreq(data)
-oneItemFreq = oneItemsetFreq(test_data)
-twoItemsets = twoItemsetFreq(test_df, oneItemFreq, miniSupport)
+oneItemFreq = oneItemsetFreq(data)
+# oneItemFreq = oneItemsetFreq(test_data)
+twoItemsets = twoItemsetFreq(df, oneItemFreq, miniSupport)
 item_a = []
 item_b = []
 support_ab = []
