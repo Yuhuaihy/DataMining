@@ -1,11 +1,11 @@
 import pandas as pd
 from pre import generate_cols, prep_df
-import IPython
-import sys
-print(sys.path)
+# from IPython import embed
 real_data_path = 'Online_Retail.csv'
 df = pd.read_csv(real_data_path, names=list(range(0,6)))
 data = df.values
+test_data = data[:1000]
+test_df = df.iloc[:1000]
 
 def generateTwoItemsets(oneItemsets, miniSupport, itemFreq):
     ## if 1-itemset is not frequent(< miniSupport), skip it
@@ -42,14 +42,15 @@ def twoItemsetFreq(df, itemFreq, miniSupport):
     
 
 def computeConfidence(itemFreq, twoItemsets, item1, item2):
-    condifence = twoItemsets[(item1, item2)] / itemFreq[item1]
-    return condifence
+    confidence1 = twoItemsets[(item1, item2)] / itemFreq[item1]
+    confidence2 = twoItemsets[(item1, item2)] / itemFreq[item2]
+    return confidence1, confidence2
     
 total, _ = df.shape    
 miniSupport = 50
-oneItemFreq = oneItemsetFreq(data)
-IPython.embed()
-twoItemsets = twoItemsetFreq(df, oneItemFreq, miniSupport)
+# oneItemFreq = oneItemsetFreq(data)
+oneItemFreq = oneItemsetFreq(test_data)
+twoItemsets = twoItemsetFreq(test_df, oneItemFreq, miniSupport)
 item_a = []
 item_b = []
 support_ab = []
@@ -60,11 +61,11 @@ for pair, support in twoItemsets.items():
     item_a.append(itema)
     item_b.append(itemb)
     support_ab.append(support/ total * 1.0)
-    conf1 = computeConfidence(oneItemFreq, twoItemsets, itema, itemb)
-    conf2 = computeConfidence(oneItemFreq, twoItemsets, itemb, itema)
+    conf1, conf2 = computeConfidence(oneItemFreq, twoItemsets, itema, itemb)
     confidence_a_to_b.append(conf1)
     confidence_b_to_a.append(conf2)
 
 cols = generate_cols()
-data = [pd.DataFrame(item_a), pd.DataFrame(item_b),pd.DataFrame(support_ab), pd.DataFrame(confidence_a_to_b),pd.DataFrame(confidence_b_to_a) ]
-output =  prep_df(data, cols)
+outdata = [pd.DataFrame(item_a), pd.DataFrame(item_b),pd.DataFrame(support_ab), pd.DataFrame(confidence_a_to_b),pd.DataFrame(confidence_b_to_a) ]
+output =  prep_df(outdata, cols)
+print(output.head())
